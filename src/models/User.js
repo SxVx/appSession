@@ -3,11 +3,11 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt-nodejs');
 
 const UserSchema = new Schema({
-    emai : String,
+    email : String,
     password : String
 });
 
-UserSchema.methods.encryptPassword = () => {
+UserSchema.methods.encryptPassword = (password) => {
     return bcrypt.hashSync(password,bcrypt.genSaltSync(10));
 }
 

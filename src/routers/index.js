@@ -5,11 +5,15 @@ const passport = require('passport');
 const User = require('../models/User');
 
 router.get('/',async (req,res,next)=>{
+    
     User.find({},(err,data)=>{
         if(err)throw err;
-        res.send(data);
+        res.render('index',{
+            data
+        });
+       
     });
-    //res.render('index');
+    
 });
 
 router.get('/signup',(req,res,next)=>{
@@ -26,7 +30,7 @@ una vez termine hace los redireccionamientos correspondientes
 router.post('/signup',passport.authenticate('local-signup',{
     successRedirect : '/profile',
     failureRedirect : '/signup',
-    //es para internamente la propiedad en el request, el primer parametro de las funciones router
+    //es para que viva internamente la propiedad en el request, el primer parametro de las funciones router
     passReqToCallback : true,
 }));
 
@@ -34,12 +38,30 @@ router.get('/signin',(req,res,next)=>{
     res.render('signin');
 });
 
-router.post('/signin',(req,res,next)=>{
-    
-});
+router.post('/signin',passport.authenticate('local-signin',{
+    successRedirect : '/profile',
+    failureRedirect : '/signin',
+    passReqToCallback : true,
+}));
 
-router.get('/profile',(req,res,next)=>{
+
+
+router.get('/profile',isAuthenticated,(req,res,next)=>{
     res.render('profile');
 });
+
+router.get('/logout',isAuthenticated,(req,res,next)=>{
+    req.user = null;
+    req.logout();
+    res.redirect('/');
+});
+
+function isAuthenticated(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect('/');
+}
+
 
 module.exports = router;

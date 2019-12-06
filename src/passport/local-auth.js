@@ -44,11 +44,34 @@ passport.use('local-signup',new LocalStrategy({
   passReqToCallback : true, 
 },async(req,email,password,done)=>{
 
-    const user = new UserSchema();
-    user.password = user.encryptPassword(password);
-    user.email = email;
-    await user.save();
-    
+    //Si el usuario ya esta 
+    const user = await UserSchema.findOne({email:email});
+    if(user){
+        /*vamos a terminar la autenticacion y vamos a a decirle, al done 
+        null: no ocurrio un error,false: no te vamos a devolver un usaurio,
+        y por ultimo vamos a devolver un mensaje*/
+        return done(null,false,req.flash('signupMessage','The Email is already taken.'));
+    }else{
+        const newUser = new UserSchema();
+        newUser.email = email; 
+        newUser.password = newUser.encryptPassword(password);
+        newUser.save();       
+        done(null,newUser);
+    }
+}));
+
+passport.use('local-signin', new LocalStrategy({
+    usernameField : 'email',
+    passwordField : 'password',
+    passReqToCallback : true,
+}, async (req,email,password,done)=>{
+    const user = await UserSchema.findOne({email:email});
+    if(!user){
+        return done(null,false,req.flash('signinMessage','No User found.'));
+    }
+    if(!user.comparePassword(password)){
+        return done(null,false,req.flash('signinMessage','Incorrect Password'));
+    }
     done(null,user);
 }));
 

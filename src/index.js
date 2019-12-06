@@ -4,6 +4,7 @@ const path = require('path');
 const morgan = require('morgan');
 const passport = require('passport');
 const session = require('express-session');
+const flash = require('connect-flash');
 
 // Initializations
 const app = express();
@@ -25,6 +26,8 @@ app.use(session({
     resave : false, 
     saveUninitialized : false, //false para decirle que no necesitamos tener una especie de inicializacion previa
 }));
+// connect-flash hace uso de sesione al igual que passport por eso se declara despues
+app.use(flash());
 //passport se necesita ejecutar como un middleware ya que el es el encargado
 //de hacer el proceso de validacion interactuando como morgan en las rutas
 //Entonces inicializamos passport
@@ -32,6 +35,13 @@ app.use(passport.initialize());
 /*Ahora como va a escribir un archivo para los datos del usario y lo guarda el "archivo" en
 la session asi que por eso necesitamos usar la sesion de express y definirlo antes del uso de este */
 app.use(passport.session());
+
+app.use((req,res,next)=>{
+    app.locals.signupMessage = req.flash('signupMessage');
+    app.locals.signinMessage = req.flash('signinMessage');
+    app.locals.user = req.user||null; //Gracias a passport ya podemos definir una variable con los datos del usuario
+    next();
+});
 
 // Routers
 app.use(require('./routers/index'));

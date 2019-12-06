@@ -1,1 +1,9 @@
-<h1>signin</h1>
+<%- layout('layouts/main.ejs') %>
+<form action="/signin" method="post">
+    <input type="text" name="email" placeholder="Insert Email">
+    <input type="password" name="password" placeholder="Insert Password">
+
+    <button type="submit">
+        SignIn
+    </button>
+</form>
